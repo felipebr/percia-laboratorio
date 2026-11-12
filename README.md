@@ -1,5 +1,7 @@
 # percIA — Laboratório de orientação
 
+**Criado por Laryssa Sophia Cordeiro · 12 de novembro de 2026**
+
 [Guia de instalação e publicação](LEIA-PRIMEIRO.md) · [Chaves gratuitas e segurança](CHAVES-E-SEGURANCA.md) · [Instruções para o Claude Code](PROMPT-CLAUDE-CODE.md)
 
 Protótipo 0.1 do projeto de extensão *Em volta do capacitismo*, Direito/CESUPA, turma DI8NA, Belém (PA). Teste com casos fictícios. Nenhuma chave de API é incluída. A aplicação não precisa de conta para abrir.
