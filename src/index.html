@@ -81,7 +81,7 @@
 </footer>
 <dialog id="panel" aria-labelledby="panel-title"><div class="dialog-inner"><div class="dialog-top"><h2 id="panel-title"></h2><button id="close" class="iconbutton" type="button" aria-label="Fechar"><span data-icon="x" aria-hidden="true"></span></button></div><div id="panel-body"></div></div></dialog>
 <template id="connection-template">
-  <p>Você pode usar as fichas sem chave. Para testar uma IA, use uma chave sua, criada para testes. A chamada pode gerar cobrança no seu provedor.</p>
+  <p id="connection-intro">Você pode usar as fichas sem chave. Para testar uma IA, use uma chave sua, criada para testes. A chamada pode gerar cobrança no seu provedor.</p>
   <form id="connection" class="form-stack">
     <label>Provedor<select id="provider"></select></label>
     <label id="custom-wrap" hidden>URL completa de chat <span class="muted">HTTPS; formato Chat Completions</span><input id="endpoint" type="url" maxlength="240" placeholder="https://api.exemplo.com/v1/chat/completions"></label>
@@ -89,7 +89,11 @@
     <label>Chave de API<input id="key" type="password" maxlength="600" autocomplete="off" spellcheck="false" required></label>
     <p id="route-note" class="panel-note"></p>
     <label class="check"><input id="consent" type="checkbox" required> Entendo que mensagens fictícias e a chave serão enviadas pelo caminho descrito acima.</label>
-    <div class="panel-actions"><button type="submit" class="button solid" id="connect">Testar e conectar</button><button type="button" class="button" id="disconnect">Usar sem chave</button></div>
+    <div class="panel-actions">
+      <button type="submit" class="button solid" id="connect">Testar e conectar</button>
+      <button type="button" class="button" id="hosted-mode" hidden>Usar a IA do site</button>
+      <button type="button" class="button" id="disconnect">Usar sem chave</button>
+    </div>
     <div id="connection-status" role="status" class="panel-status"></div>
   </form>
 </template>

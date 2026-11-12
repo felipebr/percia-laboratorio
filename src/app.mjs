@@ -28,7 +28,11 @@ function ico(name,cls){const e=node('span','',cls);e.dataset.icon=name;e.setAttr
 const panel=$('panel');
 const out=$('messages');
 const localServer=['127.0.0.1','localhost','[::1]'].includes(location.hostname);
+const hostedUrl=document.querySelector('meta[name="percia-managed-api"]')?.content;
+const hostedConfig=hostedUrl?{provider:'groq',managed:true,url:hostedUrl}:null;
+let hostedEnabled=!!hostedConfig;
 let easy=false,config=null,history=[],context='',previousCrisis='',lastReport=null,version=0,pending=null,connectionAttempt=null,waiting=false;
+const connection=()=>config??(hostedEnabled?hostedConfig:null);
 const urgent='Não aguento mais e acho que vou me machucar agora. O que eu faço?';
 const shortLabel={bpc:'Meu BPC foi negado',cidade:'Falta acessibilidade',cuidado:'Preciso de apoio'};
 const officialOnly=(url)=>{const a=node('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';return a;};
@@ -40,7 +44,11 @@ function sourceList(ids) {
   }
   return ul;
 }
-function updateMode(){ $('mode').textContent=config?'IA: '+PROVIDERS[config.provider].label:'Modo sem chave';$('settings').title=config?'Alterar conexão com a IA':'Configurar IA'; }
+function updateMode(){
+  const active=connection();
+  $('mode').textContent=active?'IA: '+PROVIDERS[active.provider].label:'Modo sem chave';
+  $('settings').title=active?'Alterar conexão com a IA':'Configurar IA';
+}
 function status(s){$('status').textContent=s;}
 function scrollMessages(){$('viewport').scrollTop=$('viewport').scrollHeight;}
 function renderMessage(role,s,opts={}) {
@@ -50,7 +58,8 @@ function renderMessage(role,s,opts={}) {
   if(role==='assistant'){
     const b=node('button','Registrar problema nesta resposta','textbutton');b.type='button';
     const controls=node('div','','msg-actions');controls.append(b);
-    const entry={answer:s,mode:opts.remote&&config?PROVIDERS[config.provider].label:'Ficha da percIA',model:opts.remote&&config?config.model:'',topic:opts.topics?.map(x=>TOPICS.find(t=>t.id===x)?.label).filter(Boolean).join(', ')||(opts.risk?'Urgência':'Conversa')};
+    const active=opts.remote?connection():null;
+    const entry={answer:s,mode:active?PROVIDERS[active.provider].label:'Ficha da percIA',model:opts.model??active?.model??'',topic:opts.topics?.map(x=>TOPICS.find(t=>t.id===x)?.label).filter(Boolean).join(', ')||(opts.risk?'Urgência':'Conversa')};
     lastReport=entry;b.addEventListener('click',()=>report(entry));
     if(opts.topics?.length===1&&!opts.risk&&!opts.fixed){
       const prep=node('button','Preparar atendimento','textbutton');prep.type='button';
@@ -112,7 +121,14 @@ function setup() {
     note.textContent=custom?'O navegador envia a chave e as mensagens diretamente para o endereço HTTPS que você informar. Use só um serviço de confiança. O serviço precisa aceitar chamadas de navegador (CORS).':localServer?'A chave e as mensagens passam pelo servidor local para chegar ao provedor escolhido. O provedor pode registrar chamadas conforme as regras dele.':'Seu navegador envia a chave e as mensagens diretamente para o provedor escolhido. A chave fica apenas na memória desta aba. O provedor pode registrar chamadas conforme as regras dele.';
   }
   sel.onchange=()=>{model.value='';consent.checked=false;change();};change();
-  $('disconnect').onclick=()=>{connectionAttempt?.abort();pending?.abort();pending=null;++version;setWaiting(false);config=null;history=[];updateMode();panel.close();status('Você está no modo sem chave.');};
+  if(hostedConfig){
+    $('connection-intro').textContent='A IA da percIA já funciona sem configuração. Use este formulário se quiser testar outro provedor com uma chave sua.';
+    $('disconnect').textContent='Usar só as fichas';
+    const button=$('hosted-mode');
+    button.hidden=false;
+    button.onclick=()=>setDefaultMode(true);
+  }
+  $('disconnect').onclick=()=>setDefaultMode(false);
   $('connection').onsubmit=async(e)=>{
     e.preventDefault();if(connectionAttempt)return;
     const p={provider:sel.value,key:key.value.trim(),model:model.value.trim()};
@@ -132,6 +148,30 @@ function setup() {
     }catch(err){if(!controller.signal.aborted)outcome.textContent=err.message;}
     finally{if(connectionAttempt===controller)connectionAttempt=null;connect.disabled=false;}
   };
+}
+function setDefaultMode(enableHosted){
+  connectionAttempt?.abort();
+  pending?.abort();
+  pending=null;
+  ++version;
+  setWaiting(false);
+  config=null;
+  hostedEnabled=enableHosted;
+  history=[];
+  updateMode();
+  panel.close();
+  status(hostedEnabled?'IA da percIA ativada.':'Você está no modo de fichas.');
+}
+async function requestHosted(messages,signal){
+  const combined=AbortSignal.any([signal,AbortSignal.timeout(85000)]);
+  const response=await fetch(hostedConfig.url,{
+    method:'POST',headers:{'content-type':'application/json'},credentials:'omit',
+    referrerPolicy:'no-referrer',redirect:'error',signal:combined,
+    body:JSON.stringify({messages:messages.slice(-5),easy}),
+  });
+  if(response.status===429)throw new Error('A cota da IA está temporariamente ocupada.');
+  if(!response.ok)throw new Error('A IA da percIA está temporariamente indisponível.');
+  return response.json();
 }
 async function requestAI(p,messages,topics,test,signal) {
   const timeout=AbortSignal.timeout(31000);
@@ -172,23 +212,26 @@ async function send(s) {
   if(card.risk) {previousCrisis=card.risk;history=[];renderMessage('assistant',card.text,card);return;}
   previousCrisis='';
   if(card.topics.length===1)context=card.topics[0];
-  if(!config||card.fixed||!card.topics.length){renderMessage('assistant',card.text,card);return;}
-  const active=config;
+  const active=connection();
+  if(!active||card.fixed||!card.topics.length){renderMessage('assistant',card.text,card);return;}
   const messages=[...history.slice(-8),{role:'user',content:s}];
   const ticket=++version;
   const controller=new AbortController();pending=controller;
-  setWaiting(true);status('Aguardando resposta da IA…');
+  setWaiting(true);status(active.managed?'Aguardando a IA. A primeira resposta pode levar um pouco.':'Aguardando resposta da IA…');
   try{
-    const result=await requestAI(active,messages,card.topics,false,controller.signal);
+    const result=active.managed?await requestHosted(messages,controller.signal):await requestAI(active,messages,card.topics,false,controller.signal);
     if(ticket!==version)return;
     if(result.local){
       card=result;status('');renderMessage('assistant',card.text,card);
     }else{
       if(!result.answer)throw new Error('A IA não retornou uma resposta.');
-      if(active===config)history=[...messages,{role:'assistant',content:result.answer}].slice(-8);
-      status('');renderMessage('assistant',result.answer,{...card,remote:true});
+      if(active===connection())history=[...messages,{role:'assistant',content:result.answer}].slice(-8);
+      status('');renderMessage('assistant',result.answer,{...card,remote:true,model:result.model});
     }
-  }catch(err){if(ticket===version){status(err.message+' Mostrando a ficha da percIA.');renderMessage('assistant',card.text,card);}}
+  }catch(err){if(ticket===version){
+    const message=active.managed&&!(err instanceof Error&&err.message.startsWith('A '))?'A IA da percIA está temporariamente indisponível.':err.message;
+    status(message+' Mostrando a ficha da percIA.');renderMessage('assistant',card.text,card);
+  }}
   finally{if(ticket===version){pending=null;setWaiting(false);scrollMessages();}}
 }
 function reset(){
@@ -207,5 +250,6 @@ $('settings').onclick=setup;$('help').onclick=help;$('report').onclick=()=>repor
 $('reset').onclick=reset;$('urgent-case').onclick=()=>send(urgent);
 $('easy').onclick=()=>{easy=!easy;$('easy').setAttribute('aria-pressed',String(easy));document.body.classList.toggle('easy',easy);status(easy?'Leitura fácil ligada para as próximas respostas.':'Leitura fácil desligada.');};
 $('library').onclick=()=>openPanel('Base e fontes oficiais',[node('p','Fichas conferidas em '+VERIFIED+'. A base inclui canais nacionais e serviços de Belém, no Pará. A orientação é geral. Confirme com o órgão antes de ir.'),node('p','O modo sem chave usa fichas prontas. No modo com IA, a resposta pode variar. Confira as fontes abaixo.'),sourceList(Object.keys(SOURCES))]);
+updateMode();
 draw();
 

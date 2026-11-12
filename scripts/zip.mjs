@@ -4,7 +4,8 @@ export const portableFiles=[
   '.gitignore','package.json','wrangler.jsonc',
   'src/core.mjs','src/worker.mjs','src/app.mjs','src/style.css','src/index.html',
   'scripts/build.mjs','scripts/build-static.mjs','scripts/zip.mjs','scripts/serve.mjs',
-  'test/percia.test.mjs',
+  'scripts/managed-api.mjs','scripts/serve-managed.mjs',
+  'test/percia.test.mjs','test/managed.test.mjs',
 ];
 function crc32(bytes){
   let crc=0xffffffff;

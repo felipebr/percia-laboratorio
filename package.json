@@ -7,6 +7,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "build:static": "npm run build && node scripts/build-static.mjs",
+    "start:managed": "node scripts/serve-managed.mjs",
     "test": "node scripts/build.mjs && node --test",
     "start": "node scripts/build.mjs && node scripts/serve.mjs"
   }

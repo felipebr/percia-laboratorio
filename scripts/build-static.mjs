@@ -2,6 +2,11 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import site from '../dist/server/index.js';
 
 const destination = new URL('../dist/neutral-site/', import.meta.url);
+const configuredUrl = process.env.PERCIA_MANAGED_API_URL?.trim();
+const managedApi = configuredUrl ? new URL(configuredUrl) : null;
+if (managedApi && (managedApi.protocol!=='https:' || managedApi.username || managedApi.password || managedApi.search || managedApi.hash || managedApi.pathname!=='/chat')) {
+  throw new Error('PERCIA_MANAGED_API_URL deve ser uma URL HTTPS pública com caminho /chat.');
+}
 const assets = [
   ['/', 'index.html'],
   ['/app.js', 'app.js'],
@@ -24,7 +29,8 @@ for (const [path, filename] of assets) {
       .join('; ');
     const html = (await response.text()).replace(
       /(<meta charset="utf-8">)/,
-      `$1\n<meta http-equiv="Content-Security-Policy" content="${policy}">\n<meta name="referrer" content="no-referrer">`,
+      `$1\n<meta http-equiv="Content-Security-Policy" content="${policy}">\n<meta name="referrer" content="no-referrer">`+
+      (managedApi?`\n<meta name="percia-managed-api" content="${managedApi.href}">`:''),
     );
     await writeFile(new URL(filename, destination), html);
     continue;

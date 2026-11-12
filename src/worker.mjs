@@ -77,5 +77,5 @@ function createHandler(upstream=(...args)=>fetch(...args),{proxyEnabled=true}={}
     return staticResponse(req.method==='HEAD'?null:ASSETS[entry[0]],entry[1]);
   };
 }
-export {createHandler};
+export {createHandler,safeBody};
 export default {fetch:createHandler(undefined,{proxyEnabled:false})};

@@ -6,6 +6,8 @@
 
 Protótipo 0.1 do projeto de extensão *Em volta do capacitismo*, Direito/CESUPA, turma DI8NA, Belém (PA). Teste com casos fictícios. Nenhuma chave de API é incluída. A aplicação não precisa de conta para abrir.
 
+Para oferecer IA aos visitantes, hospede a API com `npm run build` e `npm run start:managed`. No servidor, configure `GROQ_API_KEY` como segredo e `PERCIA_PUBLIC_ORIGIN` como a origem pública do site. Na compilação estática, defina `PERCIA_MANAGED_API_URL` com a URL HTTPS do endpoint `/chat` e rode `npm run build:static`. O site mantém as fichas disponíveis se a IA ficar indisponível. O endpoint `/healthz` informa se o servidor recebeu a configuração.
+
 ## Começar
 
 1. Instale Node.js 22 ou superior, se ainda não tiver.
