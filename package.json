@@ -6,6 +6,7 @@
   "engines": { "node": ">=22" },
   "scripts": {
     "build": "node scripts/build.mjs",
+    "build:static": "npm run build && node scripts/build-static.mjs",
     "test": "node scripts/build.mjs && node --test",
     "start": "node scripts/build.mjs && node scripts/serve.mjs"
   }

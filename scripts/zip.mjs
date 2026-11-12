@@ -1,5 +1,5 @@
 import {deflateRawSync} from 'node:zlib';
-export const portableFiles=['README.md','VALIDACAO.md','package.json','src/core.mjs','src/worker.mjs','src/app.mjs','src/style.css','src/index.html','scripts/build.mjs','scripts/zip.mjs','scripts/serve.mjs','test/percia.test.mjs'];
+export const portableFiles=['README.md','VALIDACAO.md','package.json','src/core.mjs','src/worker.mjs','src/app.mjs','src/style.css','src/index.html','scripts/build.mjs','scripts/build-static.mjs','scripts/zip.mjs','scripts/serve.mjs','test/percia.test.mjs'];
 function crc32(bytes){
   let crc=0xffffffff;
   for(const byte of bytes){
