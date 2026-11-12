@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Laboratório de orientação da percIA. Teste casos fictícios de acesso a direitos das pessoas com deficiência.">
+<meta name="color-scheme" content="light">
+<title>percIA — Laboratório de orientação</title>
+<link rel="stylesheet" href="/style.css">
+<script defer src="/app.js"></script>
+</head>
+<body>
+<a class="skip" href="#principal">Pular para a conversa</a>
+<header class="mast">
+  <a class="brand" href="/" aria-label="percIA, início"><span class="brand-icon" data-icon="brand" aria-hidden="true"></span><span class="wordmark">perc<span>IA</span></span></a>
+  <span class="mast-divider" aria-hidden="true"></span><span class="lab-title">Laboratório de orientação</span>
+  <div class="mast-actions">
+    <button id="help" class="help" type="button"><span data-icon="heart" aria-hidden="true"></span> Ajuda imediata</button>
+    <button id="settings" class="button solid" type="button"><span data-icon="settings" aria-hidden="true"></span> Configurar IA</button>
+  </div>
+</header>
+<div class="shell">
+  <aside class="rail" aria-label="Casos e ferramentas de teste">
+    <div class="rail-content">
+      <div class="eyebrow">AMBIENTE DE TESTE</div>
+      <h2>Casos para testar</h2>
+      <p class="rail-copy">Escolha um caso fictício ou escreva o seu na conversa.</p>
+      <nav id="scenarios" aria-label="Casos fictícios"></nav>
+      <button id="urgent-case" type="button" class="rail-urgent"><span data-icon="bolt" aria-hidden="true"></span> Testar uma urgência</button>
+    </div>
+    <div class="rail-tools">
+      <button id="library" class="textbutton" type="button"><span data-icon="book" aria-hidden="true"></span> Base e fontes oficiais</button>
+      <button id="report" class="textbutton" type="button"><span data-icon="flag" aria-hidden="true"></span> Registrar um problema</button>
+    </div>
+  </aside>
+  <main id="principal" class="main" tabindex="-1">
+    <div class="chat-top">
+      <div class="badge"><span class="dot"></span><span id="mode">Modo sem chave</span></div>
+      <div class="chat-actions">
+        <button class="textbutton" id="easy" type="button" aria-pressed="false"><span data-icon="type" aria-hidden="true"></span> Leitura fácil</button>
+        <button class="textbutton" id="reset" type="button"><span data-icon="plus" aria-hidden="true"></span> Nova conversa</button>
+      </div>
+    </div>
+    <div id="viewport" class="viewport">
+      <section id="welcome" class="welcome" aria-labelledby="heading">
+        <div class="hero-art" aria-hidden="true">
+          <svg viewBox="0 0 112 112" width="112" height="112" fill="none">
+            <circle cx="56" cy="56" r="54" stroke="currentColor" stroke-opacity=".16"/>
+            <circle cx="56" cy="56" r="44" fill="#e5efe6"/>
+            <circle cx="56" cy="56" r="36" stroke="currentColor" stroke-opacity=".18" stroke-dasharray="2 5"/>
+            <path d="M56 29c4 16 10 22 26 27-16 4-22 10-26 26-4-16-10-22-26-26 16-5 22-11 26-27Z" fill="#28604e"/>
+            <path d="M84 26v12m-6-6h12" stroke="#a04d37" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="27" cy="77" r="3" fill="#a04d37"/>
+            <circle cx="56" cy="56" r="3.5" fill="#f4f7ed"/>
+          </svg>
+        </div>
+        <p class="eyebrow hero-label">DIREITOS EM LINGUAGEM SIMPLES</p>
+        <h1 id="heading">Oi! Eu sou a <em>percIA.</em></h1>
+        <p class="intro">Eu ajudo a entender direitos das pessoas com deficiência e a encontrar o próximo passo. O que você quer testar hoje?</p>
+        <div id="quick" class="quick" aria-label="Sugestões para começar"></div>
+        <p class="hero-note">Um protótipo do projeto <strong>Em volta do capacitismo</strong>, do curso de Direito do CESUPA, em Belém.</p>
+      </section>
+      <div id="messages" class="messages" role="log" aria-label="Mensagens da conversa" aria-live="polite" aria-relevant="additions"></div>
+    </div>
+    <div class="compose-area">
+      <form id="compose" class="compose">
+        <label for="prompt" class="sr">Escreva uma situação fictícia</label>
+        <textarea id="prompt" rows="2" maxlength="1600" placeholder="Escreva uma situação fictícia…" aria-describedby="privacy"></textarea>
+        <button id="send" type="submit" class="send"><span data-icon="arrowUp" aria-hidden="true"></span><span>Enviar</span></button>
+      </form>
+      <p id="privacy" class="privacy"><span data-icon="lock" aria-hidden="true"></span> Só casos fictícios. Não informe nome, CPF, endereço ou dados de saúde.</p>
+      <p id="status" class="status" role="status"></p>
+    </div>
+  </main>
+</div>
+<footer class="foot"><span>percIA · Projeto de extensão CESUPA · Belém (PA)</span><a href="/percia-prototipo.zip" download>Baixar código do protótipo (ZIP)</a><span>Protótipo 0.1 <span aria-hidden="true">/</span> Fichas conferidas em 11/11/2026</span></footer>
+<dialog id="panel" aria-labelledby="panel-title"><div class="dialog-inner"><div class="dialog-top"><h2 id="panel-title"></h2><button id="close" class="iconbutton" type="button" aria-label="Fechar"><span data-icon="x" aria-hidden="true"></span></button></div><div id="panel-body"></div></div></dialog>
+<template id="connection-template">
+  <p>Você pode usar as fichas sem chave. Para testar uma IA, use uma chave sua, criada para testes. A chamada pode gerar cobrança no seu provedor.</p>
+  <form id="connection" class="form-stack">
+    <label>Provedor<select id="provider"></select></label>
+    <label id="custom-wrap" hidden>URL completa de chat <span class="muted">HTTPS; formato Chat Completions</span><input id="endpoint" type="url" maxlength="240" placeholder="https://api.exemplo.com/v1/chat/completions"></label>
+    <label>ID do modelo<input id="model" type="text" maxlength="160" autocomplete="off" required></label>
+    <label>Chave de API<input id="key" type="password" maxlength="600" autocomplete="off" spellcheck="false" required></label>
+    <p id="route-note" class="panel-note"></p>
+    <label class="check"><input id="consent" type="checkbox" required> Entendo que mensagens fictícias e a chave serão enviadas pelo caminho descrito acima.</label>
+    <div class="panel-actions"><button type="submit" class="button solid" id="connect">Testar e conectar</button><button type="button" class="button" id="disconnect">Usar sem chave</button></div>
+    <div id="connection-status" role="status" class="panel-status"></div>
+  </form>
+</template>
+</body>
+</html>

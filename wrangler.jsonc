@@ -1,0 +1,11 @@
+{
+  "name": "percia-laboratorio",
+  "main": "dist/server/index.js",
+  "compatibility_date": "2026-01-01",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": {
+    "enabled": false
+  }
+}
+
